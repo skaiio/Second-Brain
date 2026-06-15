@@ -1,6 +1,6 @@
 FROM denoland/deno:2.3.1
 
-RUN apt-get update && apt-get install -y --no-install-recommends git gettext-base \
+RUN apt-get update && apt-get install -y --no-install-recommends git gettext-base ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
