@@ -1,0 +1,25 @@
+{
+  "peers": [
+    {
+      "type": "couchdb",
+      "name": "obsidian-vault",
+      "group": "main",
+      "database": "secondbrain",
+      "username": "admin",
+      "password": "${COUCHDB_PASSWORD}",
+      "url": "http://couchdb:5984",
+      "passphrase": "${LIVESYNC_PASSPHRASE}",
+      "obfuscatePassphrase": "",
+      "baseDir": "",
+      "useRemoteTweaks": false
+    },
+    {
+      "type": "storage",
+      "name": "vault-mirror",
+      "group": "main",
+      "baseDir": "./vault-mirror/",
+      "scanOfflineChanges": true,
+      "useChokidar": true
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+tunnel: c4f03ae1-92cc-4084-9f53-929f5d349c93
+credentials-file: /etc/cloudflared/c4f03ae1-92cc-4084-9f53-929f5d349c93.json
+ingress:
+  - hostname: brain.canimagin.com
+    path: /mcp
+    service: http://mcp:8080
+  - hostname: brain.canimagin.com
+    service: http://couchdb:5984
+  - service: http_status:404

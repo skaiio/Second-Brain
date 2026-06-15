@@ -1,0 +1,18 @@
+# Secrets
+.env
+.cloudflared/*.json
+
+# Runtime data (stays on server)
+couchdb-data/
+vault-mirror/
+bridge/dat/config.json
+
+# CouchDB initial password (plaintext — use docker.ini.template)
+couchdb-config/docker.ini
+
+# No longer used
+syncthing-config/
+
+# Node / build
+mcp-server/node_modules/
+mcp-server/dist/
