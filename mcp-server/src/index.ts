@@ -16,6 +16,12 @@ const app = express()
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 
+// Request logging
+app.use((req, _res, next) => {
+  console.log(`${req.method} ${req.path} | origin=${req.headers.origin ?? '-'} | ct=${req.headers['content-type'] ?? '-'}`)
+  next()
+})
+
 // CORS — no wildcard when credentials are involved
 app.use((req, res, next) => {
   const origin = req.headers.origin
@@ -27,6 +33,24 @@ app.use((req, res, next) => {
   if (req.method === 'OPTIONS') { res.sendStatus(204); return }
   next()
 })
+
+// RFC 8414 §3 path-based discovery: /.well-known/{type}/{issuer-path}
+// claude.ai probes these root-level URLs when the issuer has a path component
+const rootMeta = {
+  issuer: BASE_URL,
+  authorization_endpoint: `${BASE_URL}/authorize`,
+  token_endpoint: `${BASE_URL}/token`,
+  registration_endpoint: `${BASE_URL}/register`,
+  response_types_supported: ['code'],
+  grant_types_supported: ['authorization_code', 'refresh_token'],
+  code_challenge_methods_supported: ['S256'],
+  token_endpoint_auth_methods_supported: ['none'],
+  subject_types_supported: ['public'],
+  id_token_signing_alg_values_supported: ['RS256'],
+  scopes_supported: ['openid'],
+}
+app.get('/.well-known/oauth-authorization-server/mcp', (_req, res) => res.json(rootMeta))
+app.get('/.well-known/openid-configuration/mcp', (_req, res) => res.json(rootMeta))
 
 // All MCP + OAuth routes are under /mcp (the path Cloudflare routes to this container)
 const mcpRouter = express.Router()

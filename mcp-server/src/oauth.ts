@@ -54,6 +54,23 @@ export function validateAccessToken(token: string): boolean {
   return !!rec && rec.expiresAt > Date.now()
 }
 
+function asMetadata(cfg: OAuthConfig) {
+  return {
+    issuer: cfg.baseUrl,
+    authorization_endpoint: `${cfg.baseUrl}/authorize`,
+    token_endpoint: `${cfg.baseUrl}/token`,
+    registration_endpoint: `${cfg.baseUrl}/register`,
+    response_types_supported: ['code'],
+    grant_types_supported: ['authorization_code', 'refresh_token'],
+    code_challenge_methods_supported: ['S256'],
+    token_endpoint_auth_methods_supported: ['none'],
+    // OIDC compat fields (claude.ai probes openid-configuration too)
+    subject_types_supported: ['public'],
+    id_token_signing_alg_values_supported: ['RS256'],
+    scopes_supported: ['openid'],
+  }
+}
+
 export function createOAuthRouter(cfg: OAuthConfig): Router {
   const r = Router()
 
@@ -65,18 +82,14 @@ export function createOAuthRouter(cfg: OAuthConfig): Router {
     })
   })
 
-  // Authorization Server Metadata (RFC 8414)
+  // Authorization Server Metadata (RFC 8414) — path under /mcp prefix
   r.get('/.well-known/oauth-authorization-server', (_req, res) => {
-    res.json({
-      issuer: cfg.baseUrl,
-      authorization_endpoint: `${cfg.baseUrl}/authorize`,
-      token_endpoint: `${cfg.baseUrl}/token`,
-      registration_endpoint: `${cfg.baseUrl}/register`,
-      response_types_supported: ['code'],
-      grant_types_supported: ['authorization_code', 'refresh_token'],
-      code_challenge_methods_supported: ['S256'],
-      token_endpoint_auth_methods_supported: ['none'],
-    })
+    res.json(asMetadata(cfg))
+  })
+
+  // OIDC discovery — claude.ai also probes this under the /mcp prefix
+  r.get('/.well-known/openid-configuration', (_req, res) => {
+    res.json(asMetadata(cfg))
   })
 
   // Dynamic Client Registration (RFC 7591)

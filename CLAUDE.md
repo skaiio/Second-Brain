@@ -106,8 +106,16 @@ Graph-Schicht: FalkorDB + Indexer, `graph_related`/`graph_traverse` im MCP.
 ## Bekannte Stolpersteine
 
 - **OAuth für claude.ai:** Custom Connector erwartet OAuth 2.1 + PKCE (S256).
-  Endpoint `/.well-known/oauth-protected-resource` muss existieren.
+  claude.ai probiert VIER verschiedene Discovery-URLs — alle müssen beantwortet werden:
+  1. `GET /mcp/.well-known/oauth-protected-resource` (RFC 9728, Protected Resource)
+  2. `GET /.well-known/oauth-authorization-server/mcp` (RFC 8414, Pfad-basiert)
+  3. `GET /.well-known/openid-configuration/mcp` (OIDC, Pfad-basiert)
+  4. `GET /mcp/.well-known/openid-configuration` (OIDC unter dem Prefix)
+  Wenn auch nur eine davon fehlt → "Couldn't register with sign-in service" — kein Login-Tab.
   Callback-URL ist fix: `https://claude.ai/api/mcp/auth_callback`
+
 - **livesync-bridge:** Passwörter im Config plaintext (kein env-var-Substitut).
   Deshalb: Template in Git, generierte config.json in .gitignore.
+  Beim Build `--recurse-submodules` nötig (lib/ ist Submodul).
+
 - **Obfuscate Properties: AUS** — wenn das je aktiviert wird, muss die Bridge angepasst werden.
