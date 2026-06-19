@@ -152,7 +152,9 @@ button{width:100%;padding:10px;background:#6c63ff;color:#fff;border:none;border-
     const { client_id, redirect_uri, code_challenge, state } = req.query as Record<string, string>
     const { password } = req.body as { password?: string }
 
-    if (!password || !crypto.timingSafeEqual(Buffer.from(password), Buffer.from(cfg.adminToken))) {
+    const pwdBuf = Buffer.from(password ?? '')
+    const tokBuf = Buffer.from(cfg.adminToken)
+    if (pwdBuf.length !== tokBuf.length || !crypto.timingSafeEqual(pwdBuf, tokBuf)) {
       res.status(401).send('Falsches Token.')
       return
     }
